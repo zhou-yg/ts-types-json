@@ -1,0 +1,20 @@
+{
+  "variables": [
+    {
+      "escapedName": "getter",
+      "type": "function",
+      "paramters": [],
+      "returnType": {
+
+      }
+    },
+    {
+      "escapedName": "setter",
+      "type": "function",
+      "paramters": [],
+      "returnType": {
+
+      }
+    }
+  ]
+}

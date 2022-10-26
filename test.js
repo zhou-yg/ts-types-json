@@ -11,6 +11,8 @@ function generateDocumentation() {
     target: ts.ScriptTarget.ES2015,
   })
 
+  ts.createProgram
+
   const checker = program.getTypeChecker();
 
   for (const sourceFile of program.getSourceFiles()) {
@@ -19,6 +21,7 @@ function generateDocumentation() {
       const { statements } = sourceFile
       const [n1, n2] = statements
       console.log('statements.1: ', n1, ts.SyntaxKind[n1.kind]);
+      ts.forEachChild(n1, n => console.log(ts.SyntaxKind[n.kind]))
       console.log('statements.2: ', n2, ts.SyntaxKind[n2.kind], '\n');
     
       if (n2.kind === ts.SyntaxKind.FirstStatement) {
@@ -31,6 +34,9 @@ function generateDocumentation() {
 
         const type = checker.getTypeOfSymbolAtLocation(symbol, v.name)
         console.log('type: ', type);
+
+        const typeStr = checker.typeToString(type)
+        console.log('typeStr: ', typeStr);
       }
 
     }

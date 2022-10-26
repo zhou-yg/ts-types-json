@@ -1,7 +1,5 @@
-interface A {
-  b: string;
+type AA = {
+  a: string
 }
 
-const aa: A = {
-  b: '1'
-}
+let a : AA
