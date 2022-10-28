@@ -5,15 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "name": "index.ts",
+      "program": "${workspaceFolder}/src/index.test.ts",
       "request": "launch",
-      "name": "test.js",
-      "skipFiles": [
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register"
       ],
-      "program": "${workspaceFolder}/test.js",
-      "outFiles": [
-        "${workspaceFolder}/dist/**/*.js"
-      ]
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
     }
   ]
 }

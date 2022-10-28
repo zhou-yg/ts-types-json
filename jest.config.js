@@ -6,7 +6,7 @@ module.exports = {
   //   }
   // },
   // extensionsToTreatAsEsm: ['.ts'],
-  watch: !!process.env.W,
+  // watch: !!process.env.WATCH,
   preset: 'ts-jest',
   testEnvironment: 'node',
   collectCoverage: !!process.env.CI,
