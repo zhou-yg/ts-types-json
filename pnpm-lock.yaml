@@ -6,19 +6,19 @@ specifiers:
   jest: ^29.2.0
   ts-jest: ^29.0.3
   ts-node: ^10.9.1
-  typescript: 4.6.4
-  typescript-json-schema: ^0.54.0
+  typescript: 4.8.4
+  typescript-json-schema-pub: ^0.0.1
 
 dependencies:
   '@types/jest': 29.2.0
   '@types/node': 18.11.0
   jest: 29.2.0_pt3oab7md4pun52yk6ejrzjiwq
-  ts-jest: 29.0.3_l4z3ozhcpvk2jhg5smqvh5ajye
-  typescript: 4.6.4
-  typescript-json-schema: 0.54.0
+  ts-jest: 29.0.3_lgvxzj4uduf2ax2wmeelh2feoa
+  typescript: 4.8.4
+  typescript-json-schema-pub: 0.0.1
 
 devDependencies:
-  ts-node: 10.9.1_bnus6fm3rtdk5whflprr7omtr4
+  ts-node: 10.9.1_o6ib7qqltxpe7qrskddglns2ga
 
 packages:
 
@@ -1452,7 +1452,7 @@ packages:
       pretty-format: 29.2.0
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.1_bnus6fm3rtdk5whflprr7omtr4
+      ts-node: 10.9.1_o6ib7qqltxpe7qrskddglns2ga
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2192,7 +2192,7 @@ packages:
       is-number: 7.0.0
     dev: false
 
-  /ts-jest/29.0.3_l4z3ozhcpvk2jhg5smqvh5ajye:
+  /ts-jest/29.0.3_lgvxzj4uduf2ax2wmeelh2feoa:
     resolution: {integrity: sha512-Ibygvmuyq1qp/z3yTh9QTwVVAbFdDy/+4BtIQR2sp6baF2SJU/8CKK/hhnGIDY2L90Az2jIqTwZPnN2p+BweiQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
@@ -2222,11 +2222,11 @@ packages:
       lodash.memoize: 4.1.2
       make-error: 1.3.6
       semver: 7.3.8
-      typescript: 4.6.4
+      typescript: 4.8.4
       yargs-parser: 21.1.1
     dev: false
 
-  /ts-node/10.9.1_566uo3uxabsdo3hlbdioccsyiq:
+  /ts-node/10.9.1_csgtisay5j2uefybgrhleyyi3u:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -2252,12 +2252,12 @@ packages:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 4.6.4
+      typescript: 4.8.4
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: false
 
-  /ts-node/10.9.1_bnus6fm3rtdk5whflprr7omtr4:
+  /ts-node/10.9.1_o6ib7qqltxpe7qrskddglns2ga:
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
     peerDependencies:
@@ -2283,7 +2283,7 @@ packages:
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
-      typescript: 4.6.4
+      typescript: 4.8.4
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 
@@ -2297,8 +2297,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /typescript-json-schema/0.54.0:
-    resolution: {integrity: sha512-/MNhm1pjdxXiVspjjyRCrQAA1B768cRzHU83aIqN5vQqQEW2NgyyKOfcguiRIMM64lseIZIelegnHOHEu7YDCg==}
+  /typescript-json-schema-pub/0.0.1:
+    resolution: {integrity: sha512-AoKW/frtCnvCN0C1BkV+RkI7/h/1oQ2lkoFEZOKPxbNwAVbaZywC0bqzleb+omHu+oCiOXDPgYN5fKjM9FueJA==}
     hasBin: true
     dependencies:
       '@types/json-schema': 7.0.11
@@ -2306,16 +2306,16 @@ packages:
       glob: 7.2.3
       path-equal: 1.2.2
       safe-stable-stringify: 2.4.1
-      ts-node: 10.9.1_566uo3uxabsdo3hlbdioccsyiq
-      typescript: 4.6.4
+      ts-node: 10.9.1_csgtisay5j2uefybgrhleyyi3u
+      typescript: 4.8.4
       yargs: 17.6.0
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
     dev: false
 
-  /typescript/4.6.4:
-    resolution: {integrity: sha512-9ia/jWHIEbo49HfjrLGfKbZSuWo9iTMwXO+Ca3pRsSpbsMbc7/IU8NKdCZVRRBafVPGnoJeFL76ZOAA84I9fEg==}
+  /typescript/4.8.4:
+    resolution: {integrity: sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
 

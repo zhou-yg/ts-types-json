@@ -1,5 +1,5 @@
 import * as ts from "typescript"
-import * as tjs from 'typescript-json-schema' 
+import * as tjs from 'typescript-json-schema-pub' 
 import tsconfigJSON from '../tsconfig.json'
 
 type JSONType = ObjectType | FunctionType | PrimitiveType | UnionOrIntersectionType
@@ -26,61 +26,103 @@ interface UnionOrIntersectionType {
 }
 
 /**
+ * Checks whether a type is a tuple type.
+ */
+ function resolveTupleType(type: ts.Type): ts.TupleTypeNode | null {
+  if (
+      !type.getSymbol() &&
+      type.flags & ts.TypeFlags.Object &&
+      (<ts.ObjectType>type).objectFlags & ts.ObjectFlags.Reference
+  ) {
+      return (type as ts.TypeReference).target as any;
+  }
+
+  if (
+    type.flags & ts.TypeFlags.Object &&
+    (<ts.ObjectType>type).objectFlags & ts.ObjectFlags.Tuple
+  ) {
+    return type as any;
+  }
+  return null;
+}
+
+function getRawType (type: ts.Type, checker: ts.TypeChecker) {
+  let result: JSONType
+  // const typeSymbol = type.getSymbol()
+
+  const tupleType = resolveTupleType(type)
+
+  if (tupleType) {
+    const { node, typeArguments } = (type as unknown as ts.TupleTypeReference)
+
+    const tupleArgumentTypes = typeArguments.map(t => {})
+
+    console.log('typeArguments: ', typeArguments);
+
+    const str = checker.typeToString(typeArguments[0])
+    console.log('str: ', str);
+
+
+  } else {    
+    if (type.flags & ts.TypeFlags.Object) {
+      const objectType = type as ts.ObjectType  
+  
+      // (type as ts.TupleTypeReference).typeArguments
+  
+      // switch (typeSymbol.escapedName) {
+      //   case 'Array':
+      //     {
+      //       const str = checker.typeToString(type)
+      //       console.log('str: ', str);
+      //     }
+      //     break
+      //   case '__object':
+      //     {
+      //       const members = objectType.getProperties()
+      //       const membersJSONType = members.map(m => {
+      //         return { n: m.getName(), v: getJSONTypeOfSymbol(checker, m)}
+      //       }).reduce((p, n) => Object.assign(p, { [n.n]: n.v }), {});
+      
+      //       result = {
+      //         type: 'object',
+      //         members: membersJSONType
+      //       }    
+      //     }
+      //     break
+      // }
+    } else if (type.flags & (ts.TypeFlags.String | ts.TypeFlags.Number | ts.TypeFlags.Boolean)) {
+      const typeName = checker.typeToString(type)
+      result = {
+        type: typeName as 'string' | 'number' | 'boolean',
+      }
+    } else if (
+      type.flags & 
+      (ts.TypeFlags.StringLiteral | ts.TypeFlags.NumberLiteral | ts.TypeFlags.BooleanLiteral)) {
+      const literalNameMap = {
+        [ts.TypeFlags.StringLiteral]: 'string',
+        [ts.TypeFlags.NumberLiteral]: 'number',
+        [ts.TypeFlags.BooleanLiteral]: 'boolean'
+      }
+      result = {
+        type: literalNameMap[type.flags],
+        enum: [(type as ts.NumberLiteralType).value]
+      }
+    }
+  }
+}
+
+/**
  * all symbol is belong to varaible symbol
  */
-function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol) {
-  // if (!(s.flags & ts.SymbolFlags.Variable)) {
-  //   throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable')
-  // }
-
+function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.JsonSchemaGenerator) {
+  if (!(s.flags & ts.SymbolFlags.Variable)) {
+    throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable')
+  }
   let result: JSONType
 
   const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
 
-  const typeSymbol = type.getSymbol()
-
-  if (type.flags & ts.TypeFlags.Object) {
-    const objectType = type as ts.ObjectType
-
-    switch (typeSymbol.escapedName) {
-      case 'Array':
-        {
-          const str = checker.typeToString(type)
-          console.log('str: ', str);
-        }
-        break
-      case '__object':
-        {
-          const members = objectType.getProperties()
-          const membersJSONType = members.map(m => {
-            return { n: m.getName(), v: getJSONTypeOfSymbol(checker, m)}
-          }).reduce((p, n) => Object.assign(p, { [n.n]: n.v }), {});
-    
-          result = {
-            type: 'object',
-            members: membersJSONType
-          }    
-        }
-        break
-    }
-  } else if (type.flags & (ts.TypeFlags.String | ts.TypeFlags.Number | ts.TypeFlags.Boolean)) {
-    const typeName = checker.typeToString(type)
-    result = {
-      type: typeName as 'string' | 'number' | 'boolean',
-    }
-  } else if (type.flags & (ts.TypeFlags.StringLiteral | ts.TypeFlags.NumberLiteral | ts.TypeFlags.BooleanLiteral)) {
-    const literalNameMap = {
-      [ts.TypeFlags.StringLiteral]: 'string',
-      [ts.TypeFlags.NumberLiteral]: 'number',
-      [ts.TypeFlags.BooleanLiteral]: 'boolean'
-    }
-    result = {
-      type: literalNameMap[type.flags],
-      enum: [(type as ts.NumberLiteralType).value]
-    }
-  } else {
-
-  }
+  const r = gen.getTypeDefinition(type)
 
   return result
 }
@@ -151,15 +193,16 @@ export function getTopTypes (file: string) {
   if (sourceFile) {
     const symbols = getAllVaraiblesTypes(sourceFile, checker, 'module')
 
+    const generate = tjs.buildGenerator(program, {
+      required: true
+    })
+
     const types = symbols.map(s => {
-      const t = getJSONTypeOfSymbol(checker, s)
+      const t = getJSONTypeOfSymbol(checker, s, generate)
       return t
     })
       
     return types
-    // const generate = tjs.buildGenerator(program, {
-    //   required: true
-    // })
 
     // const s2 = generate.getSchemaForSymbol('c')
 
