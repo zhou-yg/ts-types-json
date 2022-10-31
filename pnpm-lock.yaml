@@ -7,7 +7,7 @@ specifiers:
   ts-jest: ^29.0.3
   ts-node: ^10.9.1
   typescript: 4.8.4
-  typescript-json-schema-pub: ^0.0.1
+  typescript-json-schema-pub: 0.0.2
 
 dependencies:
   '@types/jest': 29.2.0
@@ -15,7 +15,7 @@ dependencies:
   jest: 29.2.0_pt3oab7md4pun52yk6ejrzjiwq
   ts-jest: 29.0.3_lgvxzj4uduf2ax2wmeelh2feoa
   typescript: 4.8.4
-  typescript-json-schema-pub: 0.0.1
+  typescript-json-schema-pub: 0.0.2
 
 devDependencies:
   ts-node: 10.9.1_o6ib7qqltxpe7qrskddglns2ga
@@ -2297,8 +2297,8 @@ packages:
     engines: {node: '>=10'}
     dev: false
 
-  /typescript-json-schema-pub/0.0.1:
-    resolution: {integrity: sha512-AoKW/frtCnvCN0C1BkV+RkI7/h/1oQ2lkoFEZOKPxbNwAVbaZywC0bqzleb+omHu+oCiOXDPgYN5fKjM9FueJA==}
+  /typescript-json-schema-pub/0.0.2:
+    resolution: {integrity: sha512-OGoImDtnu7Ac2ewdLfZAyMzQy7glwCFkuZb/w2NNmqctdaLH9LTBrWlslxHx1wG82lGVEppkKKIXWuPdWJcgPw==}
     hasBin: true
     dependencies:
       '@types/json-schema': 7.0.11

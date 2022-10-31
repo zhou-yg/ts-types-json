@@ -1,0 +1,21 @@
+[
+  {
+    "name": "obj",
+    "type": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "default": 0,
+          "type": "number"
+        },
+        "name": {
+          "default": "ttj",
+          "type": "string"
+        }
+      },
+      "required": [
+        "age", "name"
+      ]
+    }
+  }
+]
