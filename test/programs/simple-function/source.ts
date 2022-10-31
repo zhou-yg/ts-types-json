@@ -1,3 +1,3 @@
-/// <reference path="../../test.d.ts" />
-
-const [getter, setter] = signal(0)
+function simpleFunction (p: string) {
+  return parseInt(p)
+}

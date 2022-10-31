@@ -2,49 +2,49 @@ import * as ts from "typescript"
 import * as tjs from 'typescript-json-schema-pub' 
 import tsconfigJSON from '../tsconfig.json'
 
-type JSONType = ObjectType | FunctionType | PrimitiveType | UnionOrIntersectionType
+type VariableAndType = VariableAndFunctionType | VariableAndOtherType
 
-interface FunctionType {
-  type: 'function',
-  paramters: JSONType[],
-  returnType: JSONType
-}
-interface ObjectType {
-  type: 'object',
-  members: {
-    [key: string]: JSONType
-  }
-}
-interface PrimitiveType<T = number | string | boolean> {
-  type: T extends number ? 'number' : T extends string ? 'string' : T extends boolean ? 'boolean' : never,
-  enum?: T[] 
-}
-
-interface UnionOrIntersectionType {
-  type: 'union' | 'intersection',
-  types: JSONType[]
-}
-
-
-interface VariableAndType {
+interface VariableAndOtherType {
   name: string,
   type: tjs.Definition
 }
 
+interface VariableAndFunctionType {
+  name: string,
+  type: 'function',
+  parameters: VariableAndType[],
+  returnType: tjs.Definition
+}
+
+
 /**
  * all symbol is belong to varaible symbol
  */
-function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.JsonSchemaGenerator) {
-  if (!(s.flags & ts.SymbolFlags.Variable)) {
-    throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable')
+function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.JsonSchemaGenerator): VariableAndType {
+  if (!(s.flags & (ts.SymbolFlags.Variable | ts.SymbolFlags.Function))) {
+    throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable or function')
+  }
+
+  const name = s.getName()
+
+  if (s.flags & ts.SymbolFlags.Function) {
+    const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
+    const signature = type.getCallSignatures()[0]
+    const parameters = signature.getParameters()
+    const returnType = signature.getReturnType()
+
+    return {
+      name,
+      type: 'function',
+      parameters: parameters.map(p => getJSONTypeOfSymbol(checker, p, gen)),
+      returnType: gen.getTypeDefinition(returnType),
+    }
   }
 
   const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
-
   const r = gen.getTypeDefinition(type)
-
   let result: VariableAndType = {
-    name: s.getName(),
+    name,
     type: r,
   }
 
@@ -106,7 +106,7 @@ function getAllVaraiblesTypes (
   scopeName?: string
 ): ts.Symbol[] {
   /**
-   * 当前文件内所有变量，主要有2类
+   * all variables in the file, there are 2 formation
    *  1.var
    *  2.const/let
    */
@@ -118,17 +118,27 @@ function getAllVaraiblesTypes (
 
   function deepthVisitVariable (node: ts.Node) {
     const symbol = checker.getSymbolAtLocation(node)
-    if (symbol && (symbol.flags & ts.SymbolFlags.Variable)) {
+    if (symbol && (symbol.flags & (ts.SymbolFlags.Variable | ts.SymbolFlags.Function))) {
       variableSymbols.add(symbol)
+      return true
+    } else {
+      let found = false
+      ts.forEachChild(node, n => {
+        if (!found) {
+          found = found || deepthVisitVariable(n)
+        }
+      })
     }
-    ts.forEachChild(node, deepthVisitVariable)
   }
 
   function firstVisit (node: ts.Node) {
     // console.log('node kind', ts.SyntaxKind[node.kind], ts.SyntaxKind[node.parent.kind])
     switch (scope) {
       case 'module':
-        if (ts.isSourceFile(node.parent) && ts.isVariableStatement(node)) {
+        if (ts.isSourceFile(node.parent) && (
+          ts.isVariableStatement(node) ||
+          ts.isFunctionDeclaration(node)
+        )) {
           deepthVisitVariable(node)
         }
         break
@@ -177,6 +187,9 @@ export function getTopTypes (file: string) {
   if (sourceFile) {
     const symbols = getAllVaraiblesTypes(sourceFile, checker, 'module')
 
+    /**
+     * @TODO tjs need refactor or rewrite
+     */
     const generate = tjs.buildGenerator(program, {
       required: true
     })
@@ -207,6 +220,7 @@ export function getFunctionScopeTypes (file: string, functionName: string) {
     })
 
     const types = symbols.map(s => {
+
       const t = getJSONTypeOfSymbol(checker, s, generate)
       return t
     })

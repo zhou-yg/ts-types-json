@@ -1,20 +1,17 @@
-{
-  "variables": [
-    {
-      "escapedName": "getter",
-      "type": "function",
-      "paramters": [],
-      "returnType": {
-
+[
+  {
+    "name": "simpleFunction",
+    "type": "function",
+    "parameters": [
+      {
+        "name": "p",
+        "type": {
+          "type": "string"
+        }
       }
-    },
-    {
-      "escapedName": "setter",
-      "type": "function",
-      "paramters": [],
-      "returnType": {
-
-      }
+    ],
+    "returnType": {
+      "type": "number"
     }
-  ]
-}
+  }
+]

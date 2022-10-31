@@ -14,22 +14,20 @@ function readResult (p: string) {
   return JSON.parse(json)
 }
 
-describe('default', () => {
-  it('placeholder', () => {
-    
-  })
-})
-
 describe('ts-types-json', () => {
 
+  const only = ''; 
+
   programs.forEach((program) => {
-    it (`${program} unit test`, () => {
+
+    const executor = only === program ? it.only : it
+
+    executor(`${program} unit test`, () => {
       const s = getTopTypes(join(programsDir, `${program}/source.ts`))
-      console.log(s)
 
       const r = readResult(program)
 
-      // expect(r).toEqual(s)
+      expect(r).toEqual(s)
     })
   })
 })
