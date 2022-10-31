@@ -1,0 +1,17 @@
+[
+  {
+    "name": "simpleFunction",
+    "type": "function",
+    "parameters": [
+      {
+        "name": "p",
+        "type": {
+          "type": "string"
+        }
+      }
+    ],
+    "returnType": {
+      "type": "number"
+    }
+  }
+]

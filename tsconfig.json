@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "sourceMap": true,
-    "target": "es2015",
+    "target": "es2016",
     "useDefineForClassFields": false,
     "module": "CommonJS",
     "allowSyntheticDefaultImports": true,
@@ -21,6 +21,6 @@
     "node_modules",
     "dist",
     "src/*.test.ts",
-    "src/*.entry.ts",
+    "src/*.entry.ts"
   ]
 }
