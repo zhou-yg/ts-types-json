@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "sourceMap": true,
-    "target": "es2016",
+    "target": "es2015",
     "useDefineForClassFields": false,
     "module": "CommonJS",
     "allowSyntheticDefaultImports": true,
@@ -12,5 +12,15 @@
     "resolveJsonModule": true,
     "removeComments": false,
     "types": ["node", "jest"]
-  }
+  },
+  "include": [
+    "src/*.ts",
+    "node_modules/@types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/*.test.ts",
+    "src/*.entry.ts",
+  ]
 }
