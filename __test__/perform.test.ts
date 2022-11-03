@@ -23,7 +23,7 @@ function readResult (dir: string, p: string) {
 
 describe('ttj scope=module', () => {
 
-  const only = 'simple-function'; 
+  const only = ''; 
 
   modulePrograms.forEach((program) => {
 
