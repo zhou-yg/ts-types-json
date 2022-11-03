@@ -5,10 +5,6 @@ class ClassContainer {
   }
 
   public action () {
-    return '1'
-  }
-
-  private async  xx () {
     return 1
   }
 }

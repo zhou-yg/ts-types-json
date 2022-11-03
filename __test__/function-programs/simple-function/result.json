@@ -1,17 +1,19 @@
 [
   {
     "name": "simpleFunction",
-    "type": "function",
-    "parameters": [
-      {
-        "name": "p",
-        "type": {
-          "type": "string"
+    "definition": {
+      "type": "function",
+      "parameters": [
+        {
+          "name": "p",
+          "definition": {
+            "type": "string"
+          }
         }
+      ],
+      "returnType": {
+        "type": "number"
       }
-    ],
-    "returnType": {
-      "type": "number"
     }
   }
 ]

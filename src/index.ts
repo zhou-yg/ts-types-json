@@ -6,14 +6,20 @@ type VariableAndType = VariableAndFunctionType | VariableAndOtherType
 
 interface VariableAndOtherType {
   name: string,
-  type: tjs.Definition
+  definition: tjs.Definition
+}
+
+export enum DefinitionEnum {
+  function = 'function'
 }
 
 interface VariableAndFunctionType {
   name: string,
-  type: 'function',
-  parameters: VariableAndType[],
-  returnType: tjs.Definition
+  definition: {
+    type: DefinitionEnum.function,
+    parameters: VariableAndType[],
+    returnType: tjs.Definition
+  }
 }
 
 
@@ -21,13 +27,18 @@ interface VariableAndFunctionType {
  * all symbol is belong to varaible symbol
  */
 function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.JsonSchemaGenerator): VariableAndType {
-  if (!(s.flags & (ts.SymbolFlags.Variable | ts.SymbolFlags.Function))) {
+  if (!(s.flags & (
+    ts.SymbolFlags.Variable |
+    ts.SymbolFlags.Function |
+    ts.SymbolFlags.Property |
+    ts.SymbolFlags.Method
+  ))) {
     throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable or function')
   }
 
   const name = s.getName()
 
-  if (s.flags & ts.SymbolFlags.Function) {
+  if (s.flags & (ts.SymbolFlags.Function | ts.SymbolFlags.Method)) {
     const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
     const signature = type.getCallSignatures()[0]
     const parameters = signature.getParameters()
@@ -35,9 +46,11 @@ function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.Js
 
     return {
       name,
-      type: 'function',
-      parameters: parameters.map(p => getJSONTypeOfSymbol(checker, p, gen)),
-      returnType: gen.getTypeDefinition(returnType),
+      definition: {
+        type: DefinitionEnum.function,
+        parameters: parameters.map(p => getJSONTypeOfSymbol(checker, p, gen)),
+        returnType: gen.getTypeDefinition(returnType),
+      }
     }
   }
 
@@ -45,7 +58,7 @@ function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.Js
   const r = gen.getTypeDefinition(type)
   let result: VariableAndType = {
     name,
-    type: r,
+    definition: r,
   }
 
   return result
@@ -157,6 +170,37 @@ function getAllVaraiblesTypes (
   }
 }
 
+function isPublicProperty (node: ts.PropertyDeclaration | ts.MethodDeclaration) {
+  return node.modifiers && node.modifiers.some(m => m.kind === ts.SyntaxKind.PublicKeyword)
+}
+
+// include members and methods from class
+function getClassProperties (node: ts.Node, checker: ts.TypeChecker, className: string): ts.Symbol[] {
+
+  const memberSymbols: Set<ts.Symbol> = new Set()
+
+  ts.forEachChild(node, topVisitNode)
+
+  return [...memberSymbols]
+
+  function topVisitNode (node: ts.Node) {
+    if (ts.isClassDeclaration(node)) {
+      if (ts.isIdentifier(node.name) && node.name.escapedText === className) {
+        node.members.forEach(member => {
+          if(ts.isPropertyDeclaration(member) || ts.isMethodDeclaration(member)) {
+            if (isPublicProperty(member)) {
+              const symbol = checker.getSymbolAtLocation(member.name)
+              if (symbol) {
+                memberSymbols.add(symbol)
+              }
+            }
+          }
+        })
+      }
+    }
+  }
+}
+
 function initializeProgram (file: string) {
   const program = ts.createProgram([file], {
     ...tsconfigJSON.compilerOptions as any,
@@ -226,6 +270,30 @@ export function getFunctionScopeTypes (file: string, functionName: string) {
     })
       
     return types
+  }
+  return []
+}
+
+export function getClassScopeTypes (file: string, className: string) {
+  const {
+    program,
+    checker,
+    sourceFile
+  } = initializeProgram(file)
+
+  if (sourceFile) {
+    const symbols = getClassProperties(sourceFile, checker, className)
+
+    const generate = tjs.buildGenerator(program, {
+      required: true
+    })
+
+    const types = symbols.map(s => {
+      const t = getJSONTypeOfSymbol(checker, s, generate)
+      return t
+    })
+      
+    return types   
   }
   return []
 }

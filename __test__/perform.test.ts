@@ -1,4 +1,5 @@
 import {
+  getClassScopeTypes,
   getFunctionScopeTypes,
   getTopTypes
 }  from '../src/'
@@ -12,6 +13,9 @@ const modulePrograms = readdirSync(moduleProgramsDir)
 const functionProgramsDir = join(__dirname, './function-Programs')
 const functionPrograms = readdirSync(moduleProgramsDir)
 
+const classProgramsDir = join(__dirname, './class')
+const classPrograms = readdirSync(classProgramsDir)
+
 function readResult (dir: string, p: string) {
   const json = readFileSync(join(dir, `${p}/result.json`)).toString()
   return JSON.parse(json)
@@ -19,7 +23,7 @@ function readResult (dir: string, p: string) {
 
 describe('ttj scope=module', () => {
 
-  const only = ''; 
+  const only = 'simple-function'; 
 
   modulePrograms.forEach((program) => {
 
@@ -46,6 +50,23 @@ describe('ttj scope=function', () => {
       const s = getFunctionScopeTypes(join(functionProgramsDir, `${program}/source.ts`), 'functionContainer')
 
       const r = readResult(functionProgramsDir, program)
+
+      expect(r).toEqual(s)
+    })
+  })
+})
+describe('ttj scope=class', () => {
+
+  const only = ''; 
+
+  classPrograms.forEach((program) => {
+
+    const executor = only === program ? it.only : it
+
+    executor(`${program} unit test`, () => {
+      const s = getClassScopeTypes(join(classProgramsDir, `${program}/source.ts`), 'ClassContainer')
+
+      const r = readResult(classProgramsDir, program)
 
       expect(r).toEqual(s)
     })

@@ -1,7 +1,7 @@
 [
   {
     "name": "obj",
-    "type": {
+    "definition": {
       "type": "object",
       "properties": {
         "age": {
