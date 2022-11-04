@@ -1,4 +1,4 @@
-function functionContainer () {
+export default function functionContainer () {
   function simpleFunction (p: string) {
     return parseInt(p)
   }

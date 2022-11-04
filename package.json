@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/zhou-yg/ts-types-json/issues"
   },
-  "homepage": "https://github.com/zhou-yg/ts-types-json#readme"
+  "homepage": "https://github.com/zhou-yg/ts-types-json#readme",
+  "dependencies": {
+    "@types/jest": "^29.2.1",
+    "@types/node": "^18.11.9",
+    "ts-node": "^10.9.1"
+  }
 }

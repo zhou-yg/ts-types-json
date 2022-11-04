@@ -3,4 +3,10 @@ function functionContainer () {
     name: 'ttj',
     age: 0
   }
+
+  const cc = 2
+
+  return {
+    obj
+  }
 }

@@ -7,3 +7,5 @@ function functionContainer () {
     simpleFunction
   }
 }
+
+export default functionContainer

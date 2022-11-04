@@ -1,14 +1,7 @@
-class ClassContainer {
-  public obj = {
-    name: 'ttj',
-    age: 0
+export default function a () {
+  const s = () => {
   }
-
-  public action () {
-    return '1'
-  }
-
-  private async  xx () {
-    return 1
+  return {
+    s,
   }
 }

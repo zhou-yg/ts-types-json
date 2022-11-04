@@ -1,6 +1,7 @@
 {
-  "name": "@m2v/abstract",
+  "name": "signal-dependence",
   "version": "0.0.1",
+  "description": "generate json schema for typescript types",
   "main": "dist/index.js",
   "scripts": {},
   "repository": {

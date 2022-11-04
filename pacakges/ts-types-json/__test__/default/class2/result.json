@@ -1,0 +1,31 @@
+[
+  {
+    "name": "obj",
+    "definition": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "default": 0,
+          "type": "number"
+        },
+        "name": {
+          "default": "ttj",
+          "type": "string"
+        }
+      },
+      "required": [
+        "age", "name"
+      ]
+    }
+  },
+  {
+    "name": "action",
+    "definition": {
+      "type": "function",
+      "parameters": [],
+      "returnType": {
+        "type": "number"
+      }
+    }
+  }
+]

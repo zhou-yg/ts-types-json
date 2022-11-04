@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "index.ts",
-      "program": "${workspaceFolder}/src/index.entry.ts",
+      "program": "${workspaceFolder}/pacakges/ts-types-json/src/index.entry.ts",
       "request": "launch",
       "runtimeArgs": [
         "-r",

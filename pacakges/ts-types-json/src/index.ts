@@ -39,14 +39,15 @@ function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.Js
     ts.SymbolFlags.Property |
     ts.SymbolFlags.Method
   ))) {
-    throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable or function')
+    throw new Error('[getJSONTypeOfSymbol] the symbol must be a variable or function.')
   }
 
   const name = s.getName()
 
-  if (s.flags & (ts.SymbolFlags.Function | ts.SymbolFlags.Method)) {
-    const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
-    const signature = type.getCallSignatures()[0]
+  const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
+  const signatures = type.getCallSignatures()
+  if (signatures.length > 0) {
+    const signature = signatures[0]
     const parameters = signature.getParameters()
     const returnType = signature.getReturnType()
 
@@ -60,7 +61,6 @@ function getJSONTypeOfSymbol (checker: ts.TypeChecker, s: ts.Symbol, gen: tjs.Js
     }
   }
 
-  const type = checker.getTypeOfSymbolAtLocation(s, s.valueDeclaration)
   const r = gen.getTypeDefinition(type)
   let result: VariableAndType = {
     name,
@@ -93,18 +93,62 @@ function getNameFromFunctionLikeNode (node: ts.Node): ts.Identifier | undefined 
 }
 
 function getBodyFromFunctionLikeNode (node: ts.Node) {
+  let body: ts.Node
+  let result: ts.ArrayLiteralExpression | ts.ObjectLiteralExpression
+
   if (ts.isFunctionDeclaration(node)) {
-    return node.body
+    body = node.body
   } else if (ts.isVariableDeclaration(node)) {
     if (node.initializer && 
         (ts.isFunctionExpression(node.initializer) || 
           ts.isArrowFunction(node.initializer))) {
 
-      return node.initializer.body
+      body = node.initializer.body
     }
   }
 
-  return undefined
+  if (ts.isBlock(body)) {
+    ts.forEachChild(body, visitReturn)
+  }
+
+  return result
+
+  function isValidReturnExpression (node: ts.Node): node is ts.ArrayLiteralExpression | ts.ObjectLiteralExpression {
+    return ts.isArrayLiteralExpression(node) || ts.isObjectLiteralExpression(node)
+  }
+
+  function matchVaraibleInBody (node: ts.Block, target: ts.Identifier) {
+    let found: ts.ArrayLiteralExpression | ts.ObjectLiteralExpression | undefined
+    ts.forEachChild(node, n => {
+      if ((ts.isVariableDeclaration(n)) && ts.isIdentifier(n.name) && n.name.escapedText === target.escapedText) {
+        if (isValidReturnExpression(n.initializer)) {
+          found = n.initializer
+        }
+      }
+    })
+    return found
+  }
+
+  function visitReturn (node: ts.Node) {
+    if (ts.isReturnStatement(node)) {
+      let returnVariable: ts.ArrayLiteralExpression | ts.ObjectLiteralExpression
+      const returnExpression = node.expression
+      if (isValidReturnExpression(returnExpression)) {
+        returnVariable = returnExpression
+      } else if (ts.isIdentifier(node.expression)) {
+        returnVariable = matchVaraibleInBody(body as ts.Block, node.expression)
+      }
+      if (returnVariable) {
+        result = returnVariable 
+      }
+    } else {
+      ts.forEachChild(node, visitReturn)
+    }
+  }
+}
+
+function isExport (node: ts.Node) {
+  return true
 }
 
 function getAllVaraiblesTypes (
@@ -116,7 +160,7 @@ function getAllVaraiblesTypes (
   sourceFile: ts.SourceFile,
   checker: ts.TypeChecker,
   scope: 'function',
-  scopeName: string
+  scopeName: string | ts.Node
 ): ts.Symbol[]
 function getAllVaraiblesTypes (
   sourceFile: ts.SourceFile,
@@ -150,23 +194,48 @@ function getAllVaraiblesTypes (
     }
   }
 
+  function pickSymbolFromExpression (node: ts.ArrayLiteralExpression | ts.ObjectLiteralExpression) {
+    if (ts.isArrayLiteralExpression(node)) {
+      node.elements.forEach(e => {
+        if (ts.isIdentifier(e)){
+          const symbol = checker.getSymbolAtLocation(e) 
+          if (symbol) {
+            variableSymbols.add(symbol)
+          }
+        } else {
+          throw new Error('[pickSymbolFromExpression] the element of function return expression must be identifier.')
+        }
+        // const symbol = checker.getSymbolAtLocation(e.name)
+        // variableSymbols.add(symbol)
+      })  
+    } else if (ts.isObjectLiteralExpression(node)) {
+      node.properties.forEach(p => {
+        const symbol = checker.getSymbolAtLocation(p.name)
+        variableSymbols.add(symbol)
+      })
+    }
+  }
+
   function firstVisit (node: ts.Node) {
     // console.log('node kind', ts.SyntaxKind[node.kind], ts.SyntaxKind[node.parent.kind])
     switch (scope) {
       case 'module':
-        if (ts.isSourceFile(node.parent) && (
-          ts.isVariableStatement(node) ||
-          ts.isFunctionDeclaration(node)
-        )) {
+        if (
+          ts.isSourceFile(node.parent) && isExport(node) && 
+          (
+            ts.isVariableStatement(node) ||
+            ts.isFunctionDeclaration(node)
+          )
+        ) {
           deepthVisitVariable(node)
         }
         break
       case 'function':
         const name = getNameFromFunctionLikeNode(node)
         if (name && ts.isIdentifier(name) && name.escapedText === scopeName) {
-          const body = getBodyFromFunctionLikeNode(node)
-          if (body) {
-            deepthVisitVariable(body)
+          const returnExpression = getBodyFromFunctionLikeNode(node)
+          if (returnExpression) {
+            pickSymbolFromExpression(returnExpression)
           }
         } else {
           ts.forEachChild(node, firstVisit)
@@ -179,6 +248,7 @@ function getAllVaraiblesTypes (
 function isPublicProperty (node: ts.PropertyDeclaration | ts.MethodDeclaration) {
   return node.modifiers && node.modifiers.some(m => m.kind === ts.SyntaxKind.PublicKeyword)
 }
+
 
 // include members and methods from class
 function getClassProperties (node: ts.Node, checker: ts.TypeChecker, className: string): ts.Symbol[] {
@@ -227,6 +297,41 @@ function initializeProgram (file: string) {
   }
 }
 
+function getExportDefaultNode (node: ts.Node) {
+
+  let defaultNode: {
+    identifier: ts.Identifier | undefined
+    type?: 'class' | 'function'
+  }
+
+  ts.forEachChild(node, visit);
+
+  return defaultNode
+
+  function visit (node: ts.Node) {
+    if (ts.isSourceFile(node.parent)) {
+      if (ts.isExportAssignment(node)) {
+        if (ts.isIdentifier(node.expression)) {
+          defaultNode = {
+            identifier: node.expression
+          }
+        }
+      } else if (ts.isClassDeclaration(node) || ts.isFunctionDeclaration(node)) {
+        if (node.modifiers) {
+          const r = node.modifiers.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
+          if (r) {
+            defaultNode = {
+              identifier: node.name,
+              type: ts.isClassDeclaration(node) ? 'class' : 'function'
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
 export function getTopTypes (file: string) {
   const {
     program,
@@ -255,6 +360,26 @@ export function getTopTypes (file: string) {
   return []
 }
 
+function getFunctionScopeTypesWithProgram (
+  program: ts.Program,
+  checker: ts.TypeChecker,
+  sourceFile: ts.SourceFile,
+  scopeName: string
+) {
+  const symbols = getAllVaraiblesTypes(sourceFile, checker, 'function', scopeName)
+
+  const generate = tjs.buildGenerator(program, {
+    required: true
+  })
+
+  const types = symbols.map(s => {
+    const t = getJSONTypeOfSymbol(checker, s, generate)
+    return t
+  })
+    
+  return types
+}
+
 export function getFunctionScopeTypes (file: string, functionName: string) {
   const {
     program,
@@ -263,21 +388,25 @@ export function getFunctionScopeTypes (file: string, functionName: string) {
   } = initializeProgram(file)
 
   if (sourceFile) {
-    const symbols = getAllVaraiblesTypes(sourceFile, checker, 'function', functionName)
-
-    const generate = tjs.buildGenerator(program, {
-      required: true
-    })
-
-    const types = symbols.map(s => {
-
-      const t = getJSONTypeOfSymbol(checker, s, generate)
-      return t
-    })
-      
-    return types
+    return getFunctionScopeTypesWithProgram(program, checker, sourceFile, functionName)
   }
   return []
+}
+
+function getClassScopeTypesWithProgram (program: ts.Program, checker: ts.TypeChecker, sourceFile: ts.SourceFile, className: string) {
+  const symbols = getClassProperties(sourceFile, checker, className)
+
+  const generate = tjs.buildGenerator(program, {
+    required: true
+  })
+
+  const types = symbols.map(s => {
+    const t = getJSONTypeOfSymbol(checker, s, generate)
+    return t
+  })
+    
+  return types   
+
 }
 
 export function getClassScopeTypes (file: string, className: string) {
@@ -288,18 +417,37 @@ export function getClassScopeTypes (file: string, className: string) {
   } = initializeProgram(file)
 
   if (sourceFile) {
-    const symbols = getClassProperties(sourceFile, checker, className)
-
-    const generate = tjs.buildGenerator(program, {
-      required: true
-    })
-
-    const types = symbols.map(s => {
-      const t = getJSONTypeOfSymbol(checker, s, generate)
-      return t
-    })
-      
-    return types   
+    return getClassScopeTypesWithProgram(program, checker, sourceFile, className)
   }
   return []
+}
+
+export function getExportDefaultScopeTypes (file: string) {
+  const {
+    program,
+    checker,
+    sourceFile
+  } = initializeProgram(file)
+
+  if (sourceFile) {
+    const exportDefault = getExportDefaultNode(sourceFile)
+
+    const name = exportDefault.identifier.escapedText as string
+
+    switch (exportDefault.type) {
+      case 'class':
+        return getClassScopeTypesWithProgram(program, checker, sourceFile, name)
+      case 'function':
+        return getFunctionScopeTypesWithProgram(program, checker, sourceFile, name)
+      default:
+        {
+          let types = getClassScopeTypesWithProgram(program, checker, sourceFile, name)
+          if (!types.length)  {
+            types = getFunctionScopeTypesWithProgram(program, checker, sourceFile, name)
+          }
+          return types    
+        }        
+    }
+  }
+  return [] 
 }
