@@ -12,15 +12,5 @@
     "resolveJsonModule": true,
     "removeComments": false,
     "types": ["node", "jest"]
-  },
-  "include": [
-    "src/*.ts",
-    "node_modules/@types/**/*.d.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "src/*.test.ts",
-    "src/*.entry.ts"
-  ]
+  }
 }

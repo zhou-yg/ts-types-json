@@ -1,6 +1,12 @@
 import * as ts from "typescript"
 import * as tjs from 'typescript-json-schema-pub' 
 import tsconfigJSON from '../tsconfig.json'
+import path from 'node:path'
+import { readFileSync } from "node:fs"
+
+if (tsconfigJSON.extends) {
+  tsconfigJSON.compilerOptions = JSON.parse(readFileSync(path.join(__dirname, '../', tsconfigJSON.extends)).toString()).compilerOptions
+}
 
 type VariableAndType = VariableAndFunctionType | VariableAndOtherType
 

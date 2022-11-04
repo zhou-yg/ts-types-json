@@ -2,7 +2,7 @@ import {
   getClassScopeTypes,
   getFunctionScopeTypes,
   getTopTypes
-}  from '../src/'
+}  from '../src'
 
 import { readdirSync,readFileSync } from 'fs'
 import { join } from 'path'

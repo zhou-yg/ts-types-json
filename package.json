@@ -1,23 +1,11 @@
 {
-  "name": "ts-types-json",
-  "version": "0.0.2",
+  "name": "m2v-utility",
+  "version": "0.0.0",
   "description": "generate json schema for typescript types",
-  "main": "dist/index.js",
-  "scripts": {
-    "test": "jest",
-    "test-c": "jest --coverage",
-    "watch": "jest --watch",
-    "build": "rm -rf dist/ && tsc --declaration --project ./tsconfig.json && mv dist/src/* dist/"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zhou-yg/ts-types-json.git"
   },
-  "files": [
-    "dist",
-    "src",
-    "package.json"
-  ],
   "keywords": [
     "typescript",
     "types",
@@ -28,16 +16,5 @@
   "bugs": {
     "url": "https://github.com/zhou-yg/ts-types-json/issues"
   },
-  "homepage": "https://github.com/zhou-yg/ts-types-json#readme",
-  "dependencies": {
-    "@types/jest": "^29.2.0",
-    "@types/node": "^18.11.0",
-    "typescript": "4.8.4",
-    "typescript-json-schema-pub": "0.0.2"
-  },
-  "devDependencies": {
-    "jest": "^29.2.0",
-    "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1"
-  }
+  "homepage": "https://github.com/zhou-yg/ts-types-json#readme"
 }

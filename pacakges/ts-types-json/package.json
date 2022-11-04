@@ -1,0 +1,43 @@
+{
+  "name": "ts-types-json",
+  "version": "0.0.2",
+  "description": "generate json schema for typescript types",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "test-c": "jest --coverage",
+    "watch": "jest --watch",
+    "build": "rm -rf dist/ && tsc --declaration --project ./tsconfig.json && mv dist/src/* dist/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhou-yg/ts-types-json.git"
+  },
+  "files": [
+    "dist",
+    "src",
+    "package.json"
+  ],
+  "keywords": [
+    "typescript",
+    "types",
+    "json-schema"
+  ],
+  "author": "zhou-yg",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/zhou-yg/ts-types-json/issues"
+  },
+  "homepage": "https://github.com/zhou-yg/ts-types-json#readme",
+  "dependencies": {
+    "@types/jest": "^29.2.1",
+    "@types/node": "^18.11.9",
+    "typescript": "4.8.4",
+    "typescript-json-schema-pub": "0.0.2"
+  },
+  "devDependencies": {
+    "jest": "^29.2.2",
+    "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1"
+  }
+}
