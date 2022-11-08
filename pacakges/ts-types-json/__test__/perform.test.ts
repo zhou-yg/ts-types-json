@@ -12,7 +12,10 @@ const moduleProgramsDir = join(__dirname, './module-Programs')
 const modulePrograms = readdirSync(moduleProgramsDir)
 
 const functionProgramsDir = join(__dirname, './function-Programs')
-const functionPrograms = readdirSync(moduleProgramsDir)
+const functionPrograms = readdirSync(functionProgramsDir)
+
+const functionAllDir = join(__dirname, './function-all')
+const functionAllPrograms = readdirSync(functionAllDir)
 
 const classProgramsDir = join(__dirname, './class')
 const classPrograms = readdirSync(classProgramsDir)
@@ -27,7 +30,7 @@ function readResult (dir: string, p: string) {
   return JSON.parse(json)
 }
 
-describe('ttj scope=module', () => {
+describe('ttj scope=module onlyPublic', () => {
 
   modulePrograms.forEach((program) => {
 
@@ -42,7 +45,7 @@ describe('ttj scope=module', () => {
     })
   })
 })
-describe('ttj scope=function', () => {
+describe('ttj scope=function onlyPublic', () => {
 
 
   functionPrograms.forEach((program) => {
@@ -50,7 +53,7 @@ describe('ttj scope=function', () => {
     const executor = only.includes(program) ? it.only : it
 
     executor(`${program} unit test`, () => {
-      const s = getFunctionScopeTypes(join(functionProgramsDir, `${program}/source.ts`), 'functionContainer')
+      const s = getFunctionScopeTypes(join(functionProgramsDir, `${program}/source.ts`), 'functionContainer', { onlyPublic: true })
 
       const r = readResult(functionProgramsDir, program)
 
@@ -58,14 +61,31 @@ describe('ttj scope=function', () => {
     })
   })
 })
-describe('ttj scope=class', () => {
+
+describe('ttj scope=function all', () => {
+
+
+  functionAllPrograms.forEach((program) => {
+
+    const executor = only.includes(program) ? it.only : it
+
+    executor(`${program} unit test`, () => {
+      const s = getFunctionScopeTypes(join(functionAllDir, `${program}/source.ts`), 'functionContainer')
+
+      const r = readResult(functionAllDir, program)
+
+      expect(r).toEqual(s)
+    })
+  })
+})
+describe('ttj scope=class onlyPublic', () => {
 
   classPrograms.forEach((program) => {
 
     const executor = only.includes(program) ? it.only : it
 
     executor(`${program} unit test`, () => {
-      const s = getClassScopeTypes(join(classProgramsDir, `${program}/source.ts`), 'ClassContainer')
+      const s = getClassScopeTypes(join(classProgramsDir, `${program}/source.ts`), 'ClassContainer', { onlyPublic: true })
 
       const r = readResult(classProgramsDir, program)
 
@@ -74,14 +94,14 @@ describe('ttj scope=class', () => {
   })
 })
 
-describe('ttj target is default', () => {
+describe('ttj target is default onlyPublic', () => {
 
   defaultPrograms.forEach((program) => {
 
     const executor = only.includes(program) ? it.only : it
 
     executor(`${program} unit test`, () => {
-      const s = getExportDefaultScopeTypes(join(defaultProgramsDir, `${program}/source.ts`))
+      const s = getExportDefaultScopeTypes(join(defaultProgramsDir, `${program}/source.ts`), { onlyPublic: true })
 
       const r = readResult(defaultProgramsDir, program)
 
@@ -89,4 +109,5 @@ describe('ttj target is default', () => {
     })
   })
 })
+
 

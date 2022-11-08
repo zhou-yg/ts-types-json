@@ -93,6 +93,20 @@ function getNameFromFunctionLikeNode (node: ts.Node): ts.Identifier | undefined 
 }
 
 function getBodyFromFunctionLikeNode (node: ts.Node) {
+  if (ts.isFunctionDeclaration(node)) {
+    return node.body
+  } else if (ts.isVariableDeclaration(node)) {
+    if (node.initializer && 
+        (ts.isFunctionExpression(node.initializer) || 
+          ts.isArrowFunction(node.initializer))) {
+
+      return node.initializer.body
+    }
+  }
+  return undefined
+}
+
+function getReturnFromFunctionLikeNode (node: ts.Node) {
   let body: ts.Node
   let result: ts.ArrayLiteralExpression | ts.ObjectLiteralExpression
 
@@ -154,19 +168,20 @@ function isExport (node: ts.Node) {
 function getAllVaraiblesTypes (
   sourceFile: ts.SourceFile,
   checker: ts.TypeChecker,
-  scope: 'module'
+  scope: 'module',
+  options?: GetPropertiesOptions
 ): ts.Symbol[]
 function getAllVaraiblesTypes (
   sourceFile: ts.SourceFile,
   checker: ts.TypeChecker,
   scope: 'function',
-  scopeName: string | ts.Node
+  options: GetPropertiesOptions
 ): ts.Symbol[]
 function getAllVaraiblesTypes (
   sourceFile: ts.SourceFile,
   checker: ts.TypeChecker,
   scope: 'module' | 'function',
-  scopeName?: string
+  options?: GetPropertiesOptions,
 ): ts.Symbol[] {
   /**
    * all variables in the file, there are 2 formation
@@ -232,10 +247,17 @@ function getAllVaraiblesTypes (
         break
       case 'function':
         const name = getNameFromFunctionLikeNode(node)
-        if (name && ts.isIdentifier(name) && name.escapedText === scopeName) {
-          const returnExpression = getBodyFromFunctionLikeNode(node)
-          if (returnExpression) {
-            pickSymbolFromExpression(returnExpression)
+        if (name && ts.isIdentifier(name) && name.escapedText === options.name) {
+          if (options.onlyPublic) {
+            const returnExpression = getReturnFromFunctionLikeNode(node)
+            if (returnExpression) {
+              pickSymbolFromExpression(returnExpression)
+            }
+          } else {
+            const body = getBodyFromFunctionLikeNode(node)
+            if (body) {
+              deepthVisitVariable(body)
+            }
           }
         } else {
           ts.forEachChild(node, firstVisit)
@@ -250,8 +272,16 @@ function isPublicProperty (node: ts.PropertyDeclaration | ts.MethodDeclaration) 
 }
 
 
+interface GetPropertiesOptions {
+  name?: string
+  onlyPublic?: boolean
+}
+
 // include members and methods from class
-function getClassProperties (node: ts.Node, checker: ts.TypeChecker, className: string): ts.Symbol[] {
+function getClassProperties (
+  node: ts.Node, checker: ts.TypeChecker,
+  options: GetPropertiesOptions
+): ts.Symbol[] {
 
   const memberSymbols: Set<ts.Symbol> = new Set()
 
@@ -261,10 +291,10 @@ function getClassProperties (node: ts.Node, checker: ts.TypeChecker, className: 
 
   function topVisitNode (node: ts.Node) {
     if (ts.isClassDeclaration(node)) {
-      if (ts.isIdentifier(node.name) && node.name.escapedText === className) {
+      if (ts.isIdentifier(node.name) && node.name.escapedText === options.name) {
         node.members.forEach(member => {
           if(ts.isPropertyDeclaration(member) || ts.isMethodDeclaration(member)) {
-            if (isPublicProperty(member)) {
+            if (isPublicProperty(member) && options?.onlyPublic) {
               const symbol = checker.getSymbolAtLocation(member.name)
               if (symbol) {
                 memberSymbols.add(symbol)
@@ -364,9 +394,14 @@ function getFunctionScopeTypesWithProgram (
   program: ts.Program,
   checker: ts.TypeChecker,
   sourceFile: ts.SourceFile,
-  scopeName: string
+  options: {
+    name?: string,
+    onlyPublic?: boolean
+  },
 ) {
-  const symbols = getAllVaraiblesTypes(sourceFile, checker, 'function', scopeName)
+  const symbols = getAllVaraiblesTypes(sourceFile, checker, 'function', {
+    ...options
+  })
 
   const generate = tjs.buildGenerator(program, {
     required: true
@@ -380,7 +415,7 @@ function getFunctionScopeTypesWithProgram (
   return types
 }
 
-export function getFunctionScopeTypes (file: string, functionName: string) {
+export function getFunctionScopeTypes (file: string, functionName: string, options?: GetPropertiesOptions) {
   const {
     program,
     checker,
@@ -388,13 +423,16 @@ export function getFunctionScopeTypes (file: string, functionName: string) {
   } = initializeProgram(file)
 
   if (sourceFile) {
-    return getFunctionScopeTypesWithProgram(program, checker, sourceFile, functionName)
+    return getFunctionScopeTypesWithProgram(program, checker, sourceFile, {
+      ...options,
+      name: functionName,
+    })
   }
   return []
 }
 
-function getClassScopeTypesWithProgram (program: ts.Program, checker: ts.TypeChecker, sourceFile: ts.SourceFile, className: string) {
-  const symbols = getClassProperties(sourceFile, checker, className)
+function getClassScopeTypesWithProgram (program: ts.Program, checker: ts.TypeChecker, sourceFile: ts.SourceFile, options: GetPropertiesOptions) {
+  const symbols = getClassProperties(sourceFile, checker, options)
 
   const generate = tjs.buildGenerator(program, {
     required: true
@@ -409,7 +447,7 @@ function getClassScopeTypesWithProgram (program: ts.Program, checker: ts.TypeChe
 
 }
 
-export function getClassScopeTypes (file: string, className: string) {
+export function getClassScopeTypes (file: string, className: string, options?: GetPropertiesOptions) {
   const {
     program,
     checker,
@@ -417,12 +455,15 @@ export function getClassScopeTypes (file: string, className: string) {
   } = initializeProgram(file)
 
   if (sourceFile) {
-    return getClassScopeTypesWithProgram(program, checker, sourceFile, className)
+    return getClassScopeTypesWithProgram(program, checker, sourceFile, {
+      ...options,
+      name: className,
+    })
   }
   return []
 }
 
-export function getExportDefaultScopeTypes (file: string) {
+export function getExportDefaultScopeTypes (file: string, options?: GetPropertiesOptions) {
   const {
     program,
     checker,
@@ -436,14 +477,14 @@ export function getExportDefaultScopeTypes (file: string) {
 
     switch (exportDefault.type) {
       case 'class':
-        return getClassScopeTypesWithProgram(program, checker, sourceFile, name)
+        return getClassScopeTypesWithProgram(program, checker, sourceFile, {...options, name,})
       case 'function':
-        return getFunctionScopeTypesWithProgram(program, checker, sourceFile, name)
+        return getFunctionScopeTypesWithProgram(program, checker, sourceFile, {...options, name})
       default:
         {
-          let types = getClassScopeTypesWithProgram(program, checker, sourceFile, name)
+          let types = getClassScopeTypesWithProgram(program, checker, sourceFile, {...options, name})
           if (!types.length)  {
-            types = getFunctionScopeTypesWithProgram(program, checker, sourceFile, name)
+            types = getFunctionScopeTypesWithProgram(program, checker, sourceFile, {...options, name})
           }
           return types    
         }        
