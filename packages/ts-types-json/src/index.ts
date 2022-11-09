@@ -247,7 +247,9 @@ function getAllVaraiblesTypes (
         break
       case 'function':
         const name = getNameFromFunctionLikeNode(node)
-        if (name && ts.isIdentifier(name) && name.escapedText === options.name) {
+        if (
+          !name && !options.name ||
+          ts.isIdentifier(name) && name.escapedText === options.name) {
           if (options.onlyPublic) {
             const returnExpression = getReturnFromFunctionLikeNode(node)
             if (returnExpression) {
