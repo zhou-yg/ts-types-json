@@ -30,6 +30,7 @@
     "atomic-signal": "^0.0.2",
     "jest": "^29.2.2",
     "ts-jest": "^29.0.3",
+    "ts-node": "^10.9.1",
     "ts-types-json": "workspace:*",
     "typescript": "^4.8.4"
   }

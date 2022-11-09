@@ -291,10 +291,12 @@ function getClassProperties (
 
   function topVisitNode (node: ts.Node) {
     if (ts.isClassDeclaration(node)) {
-      if (ts.isIdentifier(node.name) && node.name.escapedText === options.name) {
+      if (
+        !node.name && !options.name ||
+        ts.isIdentifier(node.name) && node.name.escapedText === options.name) {
         node.members.forEach(member => {
           if(ts.isPropertyDeclaration(member) || ts.isMethodDeclaration(member)) {
-            if (isPublicProperty(member) && options?.onlyPublic) {
+            if (isPublicProperty(member) && options?.onlyPublic || !options?.onlyPublic) {
               const symbol = checker.getSymbolAtLocation(member.name)
               if (symbol) {
                 memberSymbols.add(symbol)
@@ -330,7 +332,7 @@ function initializeProgram (file: string) {
 function getExportDefaultNode (node: ts.Node) {
 
   let defaultNode: {
-    identifier: ts.Identifier | undefined
+    identifier?: ts.Identifier | undefined
     type?: 'class' | 'function'
   }
 
@@ -473,7 +475,7 @@ export function getExportDefaultScopeTypes (file: string, options?: GetPropertie
   if (sourceFile) {
     const exportDefault = getExportDefaultNode(sourceFile)
 
-    const name = exportDefault.identifier.escapedText as string
+    const name = exportDefault.identifier?.escapedText as string
 
     switch (exportDefault.type) {
       case 'class':

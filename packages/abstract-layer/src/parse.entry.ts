@@ -1,8 +1,8 @@
 import {
-  getClassScopeTypes
+  getExportDefaultScopeTypes
 } from 'ts-types-json'
 import path from 'path';
 
-const r = getClassScopeTypes(path.join(__dirname, './index.test.ts'), 'ClassContainer')
+const r = getExportDefaultScopeTypes(path.join(__dirname, './index.test.ts'))
 
 console.log('r: ', r);
