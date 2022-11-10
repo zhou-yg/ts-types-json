@@ -34,14 +34,13 @@ export interface CoreVision {
   components: CoreVisionComponent[]
 }
 
-function constructCoreLogicByExportDefault (
-  file: string
+function constructCoreLogic (
+  file: string,
+  getTypes: (file: string, options?: { onlyPublic: boolean  }) => VariableAndType[]
 ): CoreLogic {
   const resolvedFile = path.resolve(file)
-  const scopeTypes = getExportDefaultScopeTypes(resolvedFile)
-  const exportTypes = getExportDefaultScopeTypes(resolvedFile, { onlyPublic: true })
-  console.log('scopeTypes1:', scopeTypes)
-  console.log('scopeTypes2:', exportTypes)
+  const scopeTypes = getTypes(resolvedFile)
+  const exportTypes = getTypes(resolvedFile, { onlyPublic: true })
 
   function toSignal(types: VariableAndType) {
     return {
@@ -67,7 +66,34 @@ function constructCoreLogicByExportDefault (
  */
 export function parseExportDefault (file: string) {
   
-  const coreLogic = constructCoreLogicByExportDefault(file)
+  const coreLogic = constructCoreLogic(file, getExportDefaultScopeTypes)
+
+  const coreComponents = toComponents(coreLogic)
+
+  const result: AbstractLayer = {
+    imports: [],
+    coreLogic,
+    coreVision: {
+      components: coreComponents
+    }
+  }
+
+  return result
+}
+
+enum L2VFileExports {
+  logic = 'logic',
+  vision = 'vision',
+  incrementUI = 'incrementUI',
+  sstyleRules = 'styleRules'
+}
+
+/**
+ * 
+ */
+export function parseL2VFile (file: string) {
+ 
+  const coreLogic = constructCoreLogic(file, getExportDefaultScopeTypes)
 
   const coreComponents = toComponents(coreLogic)
 
