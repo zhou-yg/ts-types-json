@@ -1,4 +1,6 @@
 import * as path from 'node:path';
+import type { CoreVisionComponent } from './l2v'
+import { toComponents } from './l2v'
 import type { VariableAndType } from 'ts-types-json'
 import { getExportDefaultScopeTypes } from 'ts-types-json' 
 
@@ -31,18 +33,6 @@ export interface Signal {
 export interface CoreVision {
   components: CoreVisionComponent[]
 }
-
-export interface CoreVisionComponent {
-  type: ComponentType;
-  attribute: Record<string, Signal>
-  value: Signal
-}
-
-type ComponentType = 
-	| 'label'
-	| 'input'
-	| 'action'
-
 
 function constructCoreLogicByExportDefault (
   file: string
@@ -79,5 +69,15 @@ export function parseExportDefault (file: string) {
   
   const coreLogic = constructCoreLogicByExportDefault(file)
 
+  const coreComponents = toComponents(coreLogic)
 
+  const result: AbstractLayer = {
+    imports: [],
+    coreLogic,
+    coreVision: {
+      components: coreComponents
+    }
+  }
+
+  return result
 }
