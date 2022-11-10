@@ -8,7 +8,7 @@ if (tsconfigJSON.extends) {
   tsconfigJSON.compilerOptions = JSON.parse(readFileSync(path.join(__dirname, '../', tsconfigJSON.extends)).toString()).compilerOptions
 }
 
-type VariableAndType = VariableAndFunctionType | VariableAndOtherType
+export type VariableAndType = VariableAndFunctionType | VariableAndOtherType
 
 interface VariableAndOtherType {
   name: string,
