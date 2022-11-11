@@ -1,0 +1,36 @@
+{
+  "imports": [],
+  "coreLogic": {
+    "path": "abstract-layer/__test__/programs/single-file/one-logic/source.ts",
+    "signals": [
+      {
+        "id": "abstract-layer/__test__/programs/single-file/one-logic/source.ts#name",
+        "name": "name",
+        "definition": {
+          "type": "string"
+        }
+      }
+    ],
+    "exports": [
+      {
+        "id": "abstract-layer/__test__/programs/single-file/one-logic/source.ts#name",
+        "name": "name",
+        "definition": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  "coreVision": {
+    "components": [
+      {
+        "type": "input",
+        "attributes": {},
+        "value": {
+          "type": "referrence",
+          "target": "abstract-layer/__test__/programs/single-file/one-logic/source.ts#name"
+        }
+      }
+    ]
+  }
+}

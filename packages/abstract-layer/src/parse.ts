@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import type { CoreVisionComponent } from './l2v'
-import { toComponents } from './l2v'
+import { toVisualComponents } from './l2v'
 import { getFunctionScopeTypes, VariableAndType } from 'ts-types-json'
 import { getExportDefaultScopeTypes } from 'ts-types-json' 
 
@@ -21,7 +21,7 @@ export interface CoreLogic {
 export interface Signal {
   id: string; // path + name, unique and stable
   name: string;
-  type: VariableAndType['definition'];
+  definition: VariableAndType['definition'];
   readonly?: boolean
   dependecies?: {
     signal: Signal;
@@ -38,7 +38,7 @@ function constructCoreLogic (
   file: string,
   getTypes: (file: string, options?: { onlyPublic: boolean  }) => VariableAndType[]
 ): CoreLogic {
-  const resolvedFile = path.resolve(file)
+  const resolvedFile = file
   const scopeTypes = getTypes(resolvedFile)
   const exportTypes = getTypes(resolvedFile, { onlyPublic: true })
 
@@ -46,7 +46,7 @@ function constructCoreLogic (
     return {
       id: `${resolvedFile}#${types.name}`,
       name: types.name,
-      type: types.definition
+      definition: types.definition
     }
   }  
 
@@ -68,7 +68,7 @@ export function parseExportDefault (file: string) {
   
   const coreLogic = constructCoreLogic(file, getExportDefaultScopeTypes)
 
-  const coreComponents = toComponents(coreLogic)
+  const coreComponents = toVisualComponents(coreLogic)
 
   const result: AbstractLayer = {
     imports: [],
@@ -93,14 +93,14 @@ enum L2VFileExports {
  */
 export function parseL2VFile (file: string) {
  
-  const coreLogic = constructCoreLogic(file, (file, op) => {
-    const types = getFunctionScopeTypes(file, L2VFileExports.logic,{
-      onlyPublic: op.onlyPublic,
+  const coreLogic = constructCoreLogic(file, (f, op) => {
+    const types = getFunctionScopeTypes(f, L2VFileExports.logic, {
+      onlyPublic: op?.onlyPublic,
     })
     return types
   })
 
-  const coreComponents = toComponents(coreLogic)
+  const coreComponents = toVisualComponents(coreLogic)
 
   const result: AbstractLayer = {
     imports: [],

@@ -19,7 +19,7 @@
     },
     {
       "name": "abstract.entry",
-      "program": "${workspaceFolder}/packages/abstract-layer/src/parse.entry.ts",
+      "program": "${workspaceFolder}/packages/abstract-layer/src/index.entry.ts",
       "request": "launch",
       "runtimeArgs": [
         "-r",

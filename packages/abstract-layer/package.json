@@ -4,6 +4,9 @@
   "description": "generate json schema for typescript types",
   "main": "dist/index.js",
   "scripts": {
+    "test": "jest",
+    "test-c": "jest --coverage",
+    "watch": "jest --watch",
     "build": "sh build.sh"
   },
   "repository": {
