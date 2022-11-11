@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
     "sourceMap": true,
     "target": "es2016",
     "useDefineForClassFields": false,
