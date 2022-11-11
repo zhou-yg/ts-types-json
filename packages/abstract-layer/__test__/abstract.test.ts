@@ -3,10 +3,12 @@ import {
   join
 } from 'node:path'
 
+import {
+  parseL2VFile
+} from '../src/index'
+
 const classDir = join(__dirname, 'examples/classe')
 const classPrograms = readdirSync(classDir)
-
-
 
 describe('class abtract', () => {
   const only = ''; 

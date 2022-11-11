@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "generate json schema for typescript types",
   "main": "dist/index.js",
-  "scripts": {},
+  "scripts": {
+    "build": "sh build.sh"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zhou-yg/ts-types-json.git"
