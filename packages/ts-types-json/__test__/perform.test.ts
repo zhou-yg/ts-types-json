@@ -8,16 +8,16 @@ import {
 import { readdirSync,readFileSync } from 'fs'
 import { join } from 'path'
 
-const moduleProgramsDir = join(__dirname, './module-Programs')
+const moduleProgramsDir = join(__dirname, './module-top')
 const modulePrograms = readdirSync(moduleProgramsDir)
 
-const functionProgramsDir = join(__dirname, './function-Programs')
+const functionProgramsDir = join(__dirname, './function-return')
 const functionPrograms = readdirSync(functionProgramsDir)
 
 const functionAllDir = join(__dirname, './function-all')
 const functionAllPrograms = readdirSync(functionAllDir)
 
-const classProgramsDir = join(__dirname, './class')
+const classProgramsDir = join(__dirname, './class-public')
 const classPrograms = readdirSync(classProgramsDir)
 
 const defaultProgramsDir = join(__dirname, './default')

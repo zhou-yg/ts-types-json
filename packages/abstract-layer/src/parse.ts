@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import type { CoreVisionComponent } from './l2v'
 import { toComponents } from './l2v'
-import type { VariableAndType } from 'ts-types-json'
+import { getFunctionScopeTypes, VariableAndType } from 'ts-types-json'
 import { getExportDefaultScopeTypes } from 'ts-types-json' 
 
 interface AbstractLayer {
@@ -93,7 +93,12 @@ enum L2VFileExports {
  */
 export function parseL2VFile (file: string) {
  
-  const coreLogic = constructCoreLogic(file, getExportDefaultScopeTypes)
+  const coreLogic = constructCoreLogic(file, (file, op) => {
+    const types = getFunctionScopeTypes(file, L2VFileExports.logic,{
+      onlyPublic: op.onlyPublic,
+    })
+    return types
+  })
 
   const coreComponents = toComponents(coreLogic)
 

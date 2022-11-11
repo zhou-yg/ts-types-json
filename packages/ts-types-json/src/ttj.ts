@@ -258,7 +258,7 @@ function getAllVaraiblesTypes (
         const name = getNameFromFunctionLikeNode(node)
         if (
           !name && !options.name ||
-          ts.isIdentifier(name) && name.escapedText === options.name) 
+          name && ts.isIdentifier(name) && name.escapedText === options.name) 
         {
           // treat "function return" as public modifers
           if (options.onlyPublic) {
