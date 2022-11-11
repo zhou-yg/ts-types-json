@@ -23,7 +23,9 @@ const classPrograms = readdirSync(classProgramsDir)
 const defaultProgramsDir = join(__dirname, './default')
 const defaultPrograms = readdirSync(defaultProgramsDir)
 
-const only: string[] = []; 
+const only: string[] = [
+  // 'export-var-function'
+]; 
 
 function readResult (dir: string, p: string) {
   const json = readFileSync(join(dir, `${p}/result.json`)).toString()

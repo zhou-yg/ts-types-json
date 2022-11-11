@@ -288,6 +288,7 @@ function isPublicProperty (node: ts.PropertyDeclaration | ts.MethodDeclaration) 
 interface GetPropertiesOptions {
   name?: string
   onlyPublic?: boolean
+  exportFlag?: boolean // @TODO
 }
 
 // include members and methods from class
