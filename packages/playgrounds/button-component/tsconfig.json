@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "jsx": "react",
-    "jsxFactory": "h",
     "sourceMap": true,
     "target": "es2016",
     "useDefineForClassFields": false,
@@ -12,6 +10,14 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "removeComments": false,
-    "types": ["node", "jest"]
-  }
+    "jsxFactory": "h"
+  },
+  "include": [
+    "src/*.ts",
+    "node_modules/@types/**/*.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
