@@ -8,19 +8,19 @@ import {
 import { readdirSync,readFileSync } from 'fs'
 import { join } from 'path'
 
-const moduleProgramsDir = join(__dirname, './module-top')
+const moduleProgramsDir = join(__dirname, './ttj/module-top')
 const modulePrograms = readdirSync(moduleProgramsDir)
 
-const functionProgramsDir = join(__dirname, './function-return')
+const functionProgramsDir = join(__dirname, './ttj/function-return')
 const functionPrograms = readdirSync(functionProgramsDir)
 
-const functionAllDir = join(__dirname, './function-all')
+const functionAllDir = join(__dirname, './ttj/function-all')
 const functionAllPrograms = readdirSync(functionAllDir)
 
-const classProgramsDir = join(__dirname, './class-public')
+const classProgramsDir = join(__dirname, './ttj/class-public')
 const classPrograms = readdirSync(classProgramsDir)
 
-const defaultProgramsDir = join(__dirname, './default')
+const defaultProgramsDir = join(__dirname, './ttj/default')
 const defaultPrograms = readdirSync(defaultProgramsDir)
 
 const only: string[] = [

@@ -1,10 +1,10 @@
 {
   "imports": [],
   "coreLogic": {
-    "path": "abstract-layer/__test__/programs/single-file/one-logic/source.ts",
+    "path": "compiler/__test__/l2v/programs/single-file/one-logic/source.ts",
     "signals": [
       {
-        "id": "abstract-layer/__test__/programs/single-file/one-logic/source.ts#name",
+        "id": "compiler/__test__/l2v/programs/single-file/one-logic/source.ts#name",
         "name": "name",
         "definition": {
           "type": "string"
@@ -13,7 +13,7 @@
     ],
     "exports": [
       {
-        "id": "abstract-layer/__test__/programs/single-file/one-logic/source.ts#name",
+        "id": "compiler/__test__/l2v/programs/single-file/one-logic/source.ts#name",
         "name": "name",
         "definition": {
           "type": "string"
@@ -28,7 +28,7 @@
         "attributes": {},
         "value": {
           "type": "referrence",
-          "target": "abstract-layer/__test__/programs/single-file/one-logic/source.ts#name"
+          "target": "compiler/__test__/l2v/programs/single-file/one-logic/source.ts#name"
         }
       }
     ]

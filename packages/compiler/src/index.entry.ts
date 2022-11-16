@@ -1,7 +1,7 @@
 import {
   parseExportDefault,
   parseL2VFile
-} from './parse'
+} from './index'
 import path from 'path';
 import { writeFileSync } from 'fs';
 

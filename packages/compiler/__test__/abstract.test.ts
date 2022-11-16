@@ -7,7 +7,7 @@ import {
   parseL2VFile
 } from '../src/index'
 
-const classDir = join(__dirname, 'programs/single-file')
+const classDir = join(__dirname, 'l2v/programs/single-file')
 const classPrograms = readdirSync(classDir)
 
 const SOURCE = 'source.ts'
